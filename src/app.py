@@ -6,10 +6,10 @@ import chess
 import chess.svg
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 
 from src.ai import Bot
-from src.personalidades import PERSONALIDADES
+from src.personalidades import PERSONALIDADES, MAP_PERSONALIDADES
 
 load_dotenv()
 app = Flask(__name__)
@@ -17,6 +17,14 @@ board = chess.Board()
 BOT = None
 JOGADAS = []
 PERSONALIDADE = None
+
+
+def reset_all():
+    global BOT
+    global JOGADAS
+    BOT = Bot('negras', personalidade=PERSONALIDADE)
+    JOGADAS = []
+    board.reset()
 
 
 @app.route('/')
@@ -29,11 +37,7 @@ def get_root():
 
 @app.route('/reset')
 def get_reset():
-    global BOT
-    global JOGADAS
-    BOT = Bot('negras', personalidade=PERSONALIDADE)
-    JOGADAS = []
-    board.reset()
+    reset_all()
     return ''
 
 
@@ -84,8 +88,20 @@ def get_dica():
     return BOT.pedir_dica()
 
 
-@app.route('/jogadores')
+@app.route('/jogadores', methods=['GET', 'POST'])
 def get_jogadores():
+    if request.method == 'POST':
+        if 'personalidade' not in request.json:
+            return {'success': False, 'message': 'Informe uma personalidade'}
+        personalidade_id = request.json['personalidade']
+        global PERSONALIDADE
+        PERSONALIDADE = MAP_PERSONALIDADES[personalidade_id]
+        reset_all()
+        return {
+            'message': 'Personalidade selecionada.',
+            'personalidade': PERSONALIDADE.to_dict(),
+        }
+
     personalidades = []
     for p in PERSONALIDADES:
         personalidades.append(p.to_dict())
@@ -96,3 +112,8 @@ def get_jogadores():
             None if PERSONALIDADE is None else PERSONALIDADE.to_dict()
         ),
     }
+
+
+@app.route('/avatars/<path:path>')
+def send_avatar(path):
+    return send_from_directory('avatars', path)
