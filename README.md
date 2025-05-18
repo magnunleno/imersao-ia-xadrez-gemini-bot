@@ -3,6 +3,9 @@ Implementaçãoa simples e rápida de um bot com 3 personalidades para ser seu p
 
 Por conta do pouco tempo disponível não foi possível implementar movimentação de peças por "arrasta e solta", e é necessário saber a notação algébrica do xadrez.
 
+![Tela Inicial](https://github.com/magnunleno/imersao-ia-xadrez-gemini-bot/blob/main/img/tela-inicial.png?raw=true)
+![Jogadas com dicas](https://github.com/magnunleno/imersao-ia-xadrez-gemini-bot/blob/main/img/dicas.png?raw=true)
+
 
 ## Pre-requisitos
 - python 3.13
