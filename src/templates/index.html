@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Xadrez Gemini Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+  </head>
+
+  <body onload="onLoad()">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Xadrez Gemini Bot</a>
+        <button type="button" class="btn btn-danger" onclick="resetBoard()">Reiniciar</button>
+      </div>
+    </nav>
+
+    <div class="container" style="margin-top: 1em;">
+      <div class="row align-items-start">
+        <div class="alert alert-warning alert-dismissible" role="alert" id="alert" style="display: none;">
+          <div id="alertMessage">A simple warning alert—check it out!</div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="alertEl.style.display = 'none'"></button>
+        </div>
+
+        <div class="col" id="board"></div>
+
+        <div class="col">
+
+          <div class="card" style="margin-top: 1em;">
+            <div class="card-body">
+              <h5 class="card-title">Adversário</h5>
+              <p class="card-text" id="text-adversario">
+                Vamos começar
+              </p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 1em;">
+            <div class="card-body">
+              <form>
+                <div class="row">
+                  <div class="col-md-10">
+                    <input type="text" class="form-control" placeholder="Seu movimento" aria-label="Seu movimento" id="input-jogada">
+                    <span style="font-size: 0.8em;">Utilize a notação em inglês. Ex: Nf3</span>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary" onclick="onJogada(event)">Jogar</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 1em;">
+            <div class="card-body">
+              <div class="card-title">
+                <button type="button" class="btn btn-light" onclick="onDica(event)">Pedir Dica</button>
+              </div>
+              <p class="card-text" id="text-dica">
+              </p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 1em;">
+            <div class="card-body">
+              <h5 class="card-title">Jogadas</h5>
+              <p class="card-text" id="text-jogadas"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script>
+      let personalidade = null;
+      let personalidades = [];
+      const inputEl = document.getElementById('input-jogada');
+      const jogadasEl = document.getElementById('text-jogadas');
+      const adversarioEl = document.getElementById('text-adversario');
+      const dicaEl = document.getElementById('text-dica');
+      const boardEl = document.getElementById('board');
+      const alertEl = document.getElementById('alert');
+      const alertMessageEl = document.getElementById('alertMessage');
+
+      function post(url, dados) {
+        const config = {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados)
+        };
+        return fetch(url, config);
+      }
+
+      function onJogada(e) {
+        const jogada = inputEl.value;
+        post('/jogada', {'jogada': jogada}).then(resp => resp.json()).then(dados => {
+          if (dados.success == false) {
+            alertMessageEl.innerHTML = dados.message;
+            alertEl.style.display = 'block';
+          } else {
+            alertEl.style.display = 'none';
+            adversarioEl.innerHTML = dados.bot.comentario
+            inputEl.value = '';
+            fetchBoard();
+          }
+        })
+        event.preventDefault();
+      }
+
+      function onDica(e) {
+        fetch('/dica').then(resp => resp.json()).then(dados => {
+          dicaEl.innerHTML = dados.dica;
+        })
+        event.preventDefault();
+      }
+
+      function resetBoard() {
+        fetch('/reset').then(resp => {
+          fetchBoard()
+        })
+      }
+
+      function fetchBoard() {
+        fetch('/board').then(resp => resp.text()).then(text => {
+          boardEl.innerHTML = text;
+        })
+        fetchJogadas();
+      }
+
+      function fetchJogadores() {
+        fetch('/jogadores').then(resp => resp.json()).then(dados => {
+          personalidades = dados.personalidades;
+          personalidade = dados.selecionado;
+        })
+      }
+
+      function fetchJogadas() {
+        fetch('/jogada').then(resp => resp.json()).then(dados => {
+          jogadasEl.innerHTML = '';
+          dados.jogadas.forEach(jogada => {
+            let tag = ''
+            if (jogada[0] % 2 === 0) {
+              tag = `<span class="badge text-bg-dark">${jogada[0]}. ${jogada[1]}</span>`
+            } else {
+              tag = `<span class="badge text-bg-light">${jogada[0]}. ${jogada[1]}</span>`
+            }
+            jogadasEl.innerHTML = jogadasEl.innerHTML + ' ' + tag
+          })
+        })
+      }
+
+      function onLoad() {
+        fetchBoard()
+        fetchJogadores()
+      }
+    </script>
+  </body>
+</html>
