@@ -51,13 +51,17 @@ Modal title
         <div class="col" id="board"></div>
 
         <div class="col">
-
           <div class="card" style="margin-top: 1em;">
-            <div class="card-body">
-              <h5 class="card-title">Adversário</h5>
-              <p class="card-text" id="text-adversario">
-                Vamos começar
-              </p>
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="..." class="img-fluid rounded-start" alt="..." id="adversarioImg">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title" id="adversaioNome"></h5>
+                  <p class="card-text" id="text-adversario"></p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -110,6 +114,8 @@ Modal title
       const alertMessageEl = document.getElementById('alertMessage');
       const adversarioBtnEl = document.getElementById('adversarionBtn');
       const personalidadesBoardEl = document.getElementById('personalidadesBoard');
+      const adversarioNomeEl = document.getElementById('adversaioNome');
+      const adversarioImgEl = document.getElementById('adversarioImg');
 
       function post(url, dados) {
         const config = {
@@ -147,6 +153,7 @@ Modal title
           dicaEl.innerHTML =  '';
           jogadasEl.innerHTML = '';
           adversarioEl.innerHTML = '';
+          personalidade = null;
       }
 
       function resetBoard() {
@@ -186,9 +193,13 @@ Modal title
 
       function onPersonalidade(id) {
         post('/jogadores', {'personalidade': id}).then(resp => resp.json()).then(dados => {
-          personalidade = personalidade
-          reset()
-          fetchBoard()
+          let p = dados.personalidade;
+          reset();
+          fetchBoard();
+          adversarioImgEl.src = `/avatars/p${p.id}.png`;
+          adversarioImgEl.alt = p.nome;
+          adversarioEl.innerHTML = 'Vamos começar!';
+          adversaioNome.innerHTML = p.nome;
         })
       }
 
