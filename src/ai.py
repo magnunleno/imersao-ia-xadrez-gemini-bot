@@ -12,8 +12,10 @@ CLIENT = genai.Client()
 INSTRUCAO_BASE1 = (
     'Você será meu adversário no xadrez e jogará de {cor}. '
     'Você sempre responderá com sua jogada e um comentário '
-    'sobre o que está acontecendo no jogo. Suas '
-    'respostas serão no formato JSON conforme esse exemplo: '
+    'sobre o que está acontecendo no jogo. Suas jogadas na notaçao '
+    'do xadrez devem ser feitas em inglês, então o rei usa a letra K, '
+    'a torre a letra R, o cavalo a letra N, a rainha a letra Q e o bispo '
+    'a letra B. Suas respostas serão no formato JSON conforme esse exemplo: '
     '{{"movimento": "XYN", "comentario": "Seu comentário"}}\n\n '
 )
 INSTRUCAO_BASE2 = (

@@ -61,6 +61,7 @@ def post_jogada():
                 board.push(jogada)
                 movimento_bot = BOT.informar_jogada(jogada_san)
                 jogada_bot_san = movimento_bot['movimento']
+                print('BOT', jogada_bot_san)
                 pos = len(JOGADAS) + 1
                 JOGADAS.append((pos, jogada_bot_san))
                 jogada_bot = board.parse_san(jogada_bot_san)

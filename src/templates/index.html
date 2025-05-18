@@ -185,7 +185,6 @@ Modal title
       }
 
       function onPersonalidade(id) {
-        console.log('p', {'personalidade': id})
         post('/jogadores', {'personalidade': id}).then(resp => resp.json()).then(dados => {
           personalidade = personalidade
           reset()
